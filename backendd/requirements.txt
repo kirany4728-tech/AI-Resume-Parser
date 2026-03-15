@@ -1,0 +1,15 @@
+fastapi
+streamlit
+pandas
+plotly
+requests
+python-docx
+pdfplumber
+openai
+python-dotenv
+python-multipart
+sqlalchemy
+uvicorn
+sentence-transformers
+scikit-learn
+numpy
