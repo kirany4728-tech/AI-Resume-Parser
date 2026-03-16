@@ -5,6 +5,7 @@ from io import BytesIO
 import os
 from auth import login
 
+#API_URL = "https://ai-resume-parser-uet6.onrender.com"
 
 if not login():
     st.stop()
@@ -53,7 +54,7 @@ if mode == "Resume Parsing (Bulk CSV)":
             with st.spinner("Processing..."):
 
                 response = requests.post(
-                    "http://127.0.0.1:8000/upload/",
+                    "https://ai-resume-parser-uet6.onrender.com/upload/",
                     files=files
                 )
 
@@ -111,7 +112,7 @@ if mode == "AI Shortlisting Engine":
             with st.spinner("Processing resumes..."):
 
                 response = requests.post(
-                    "http://127.0.0.1:8000/upload/",
+                    "https://ai-resume-parser-uet6.onrender.com/upload/",
                     files=files,
                     data={"jd_text": jd_text}
                 )
@@ -248,7 +249,7 @@ if "rank_df" in st.session_state:
             """
 
             response = requests.post(
-                "http://127.0.0.1:8000/summary/",
+                "https://ai-resume-parser-uet6.onrender.com/summary/",
                 json={"text": summary_prompt}
             )
 
