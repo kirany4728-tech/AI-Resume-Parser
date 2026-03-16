@@ -119,9 +119,7 @@ if mode == "AI Shortlisting Engine":
             if response.status_code == 200:
 
                 df = pd.read_csv(BytesIO(response.content))
-
                 st.session_state["rank_df"] = df
-
                 st.success("Ranking Complete!")
 
                 parsed_count = int(response.headers.get("X-Parsed", 0))
@@ -137,7 +135,6 @@ if mode == "AI Shortlisting Engine":
             else:
                 st.error("Backend error.")
 #dashboard
-
 if "rank_df" in st.session_state:
 
     df = st.session_state["rank_df"].copy()
@@ -166,7 +163,6 @@ if "rank_df" in st.session_state:
         st.warning("No candidates match this filter.")
 
     # create Table
-
     st.markdown("Top 10 Candidates")
 
     top_columns = [
@@ -196,7 +192,6 @@ if "rank_df" in st.session_state:
     #SEARCH block
     st.markdown("---")
     st.subheader("Search Candidates")
-
     search_skill = st.text_input("Search by Skill")
     search_location = st.text_input("Search by Location")
 
@@ -244,7 +239,6 @@ if "rank_df" in st.session_state:
             st.write("Skills:", profile.key_skills)
 
             #candidate summary using ai:
-
             summary_prompt = f"""
             Summarize this candidate for HR in 3 bullet points.
 
@@ -287,7 +281,6 @@ if "rank_df" in st.session_state:
 #resume Prev.
 st.markdown("---")
 st.subheader("Resume Preview")
-
 UPLOAD_FOLDER = "uploads"
 
 if os.path.exists(UPLOAD_FOLDER):

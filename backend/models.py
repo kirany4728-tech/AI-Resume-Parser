@@ -1,7 +1,6 @@
 from sqlalchemy import Column, Integer, String, Text
 from database import Base
 
-
 class ResumeData(Base):
     __tablename__ = "resumes"
 

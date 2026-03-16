@@ -8,3 +8,5 @@ logs.txts
 # Upload resumes
 backendd/uploads/
 *.pyc
+
+.idea/

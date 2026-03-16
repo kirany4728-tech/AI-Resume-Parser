@@ -147,9 +147,7 @@ async def upload_resumes(
 
                 matched_skills=", ".join(result.get("matched_skills", [])),
                 missing_skills=", ".join(result.get("missing_skills", [])),
-
                 jd_match_score=result.get("jd_match_score", 0)
-
             )
 
             db.add(entry)
@@ -158,12 +156,9 @@ async def upload_resumes(
             parsed += 1
 
         except Exception as e:
-
             errors += 1
             db.rollback()
-
             logging.error(f"Resume processing failed: {file.filename}")
-
 #RANKING:
 
     all_data = db.query(ResumeData).filter(
@@ -175,10 +170,8 @@ async def upload_resumes(
         key=lambda x: x.jd_match_score,
         reverse=True
     )
-
     for i, row in enumerate(sorted_data, start=1):
         row.rank = i
-
     db.commit()
 
     output = io.StringIO()
