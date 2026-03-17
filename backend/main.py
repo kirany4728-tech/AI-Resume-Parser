@@ -18,6 +18,7 @@ from validation_scoring import calculate_final_score
 from database import SessionLocal, engine
 from models import ResumeData
 import models
+import gc
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -159,6 +160,7 @@ async def upload_resumes(
             errors += 1
             db.rollback()
             logging.error(f"Resume processing failed: {file.filename}")
+            gc.collect()
 #RANKING:
 
     all_data = db.query(ResumeData).filter(

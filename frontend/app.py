@@ -5,7 +5,7 @@ from io import BytesIO
 import os
 from auth import login
 
-
+API_URL = "https://authoritye.com"
 
 if not login():
     st.stop()
@@ -54,7 +54,7 @@ if mode == "Resume Parsing (Bulk CSV)":
             with st.spinner("Processing..."):
 
                 response = requests.post(
-                    "https://authoritye.com/upload/",
+                    f"{API_URL}/upload/",
                     files=files
                 )
 
@@ -112,7 +112,7 @@ if mode == "AI Shortlisting Engine":
             with st.spinner("Processing resumes..."):
 
                 response = requests.post(
-                    "https://authoritye.com/upload/",
+                    f"{API_URL}/upload/",
                     files=files,
                     data={"jd_text": jd_text}
                 )
@@ -249,7 +249,7 @@ if "rank_df" in st.session_state:
             """
 
             response = requests.post(
-                "https://authoritye.com/summary/",
+                f"{API_URL}/summary/",
                 json={"text": summary_prompt}
             )
 
