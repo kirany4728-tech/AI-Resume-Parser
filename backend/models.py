@@ -5,9 +5,7 @@ class ResumeData(Base):
     __tablename__ = "resumes"
 
     id = Column(Integer, primary_key=True, index=True)
-
     batch_id = Column(String, index=True)
-
     file_hash = Column(String, unique=True, index=True)
 
     full_name = Column(String)
@@ -24,7 +22,6 @@ class ResumeData(Base):
     last_working_date = Column(String)
 
     education = Column(String)
-
     age = Column(String)
 
     industry_category = Column(String)

@@ -1,7 +1,6 @@
 import re
 import networkx as nx
 from sklearn.metrics.pairwise import cosine_similarity
-# Single embedding model (semantic understanding like ATS)
 from embedding_model import model
 
 def clean_skill(skill):
@@ -12,12 +11,10 @@ def clean_skill(skill):
     return skill.strip()
 
 def build_skill_graph(resume_skills, jd_skills):
-
     """
     Build dynamic skill relationship graph
     No hardcoded tech stacks.
     """
-
     skills = list(set(resume_skills + jd_skills))
 
     if len(skills) < 2:

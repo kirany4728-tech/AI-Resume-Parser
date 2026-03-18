@@ -144,7 +144,6 @@ def location_score(candidate_location, jd_location):
 
     if candidate_location.lower() == jd_location.lower():
         return 3
-
     return 1
 
 # FINAL SCORE

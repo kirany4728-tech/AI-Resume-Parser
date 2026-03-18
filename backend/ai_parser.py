@@ -108,7 +108,6 @@ Rules:
 - If experience range is not clear return 0
 - Return ONLY valid JSON
 - No explanations
-
 Return JSON format:
 
 {{
