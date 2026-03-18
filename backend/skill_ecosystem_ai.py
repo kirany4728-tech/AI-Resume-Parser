@@ -1,6 +1,7 @@
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from embedding_model import model
+from embedding_model import get_embedding
 
 def clean_skill(skill):
 
@@ -21,6 +22,7 @@ def expand_skills_with_ecosystem(resume_skills, jd_skills=None):
     .NET → ASP.NET, Entity Framework
     """
 
+
     if not resume_skills:
         return resume_skills
 
@@ -38,7 +40,7 @@ def expand_skills_with_ecosystem(resume_skills, jd_skills=None):
 
     try:
 
-        embeddings = model.encode(all_skills)
+        embeddings = get_embedding(all_skills)
 
         similarity_matrix = cosine_similarity(embeddings)
 

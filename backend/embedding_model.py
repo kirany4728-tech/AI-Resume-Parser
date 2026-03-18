@@ -7,4 +7,20 @@ model = SentenceTransformer(
     device="cpu"
 )
 
+embedding_cache = {}
 
+def get_embedding(text):
+
+    # 🔥 HANDLE LIST INPUT
+    if isinstance(text, list):
+        return [get_embedding(t) for t in text]
+
+    text = str(text).lower().strip()
+
+    if text in embedding_cache:
+        return embedding_cache[text]
+
+    emb = model.encode(text)
+    embedding_cache[text] = emb
+
+    return emb

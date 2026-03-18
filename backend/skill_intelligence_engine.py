@@ -1,6 +1,7 @@
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from embedding_model import model
+from embedding_model import get_embedding
 
 def clean_skill(skill):
 
@@ -21,7 +22,7 @@ def build_skill_intelligence(resume_skills, jd_skills):
 
         return resume_skills
 
-    embeddings = model.encode(all_skills)
+    embeddings = get_embedding(all_skills)
 
     sim_matrix = cosine_similarity(embeddings)
 

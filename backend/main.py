@@ -12,7 +12,6 @@ from fastapi.responses import StreamingResponse
 
 from extractor import extract_text_from_pdf, extract_text_from_docx
 from ai_parser import parse_resume, parse_jd
-
 from validation_scoring import calculate_final_score
 
 from database import SessionLocal, engine
@@ -40,7 +39,6 @@ async def upload_resumes(
 ):
 
     db = SessionLocal()
-
     batch_id = str(uuid.uuid4())
 
     parsed = 0
@@ -53,16 +51,17 @@ async def upload_resumes(
         jd_data = parse_jd(jd_text)
         jd_data["jd_text"] = jd_text
 
+    all_entries = []
+
     for file in files:
-
         try:
-
             contents = await file.read()
-
             file_hash = hashlib.md5(contents).hexdigest()
 
+            # ✅ FIX: Duplicate only within SAME batch
             existing = db.query(ResumeData).filter(
-                ResumeData.file_hash == file_hash
+                ResumeData.file_hash == file_hash,
+                ResumeData.batch_id == batch_id
             ).first()
 
             if existing:
@@ -89,12 +88,10 @@ async def upload_resumes(
                 errors += 1
                 continue
 
-            #Ats  scoringg
-
+            # 🔥 AI JD Matching
             if jd_data:
 
                 resume_data = {
-
                     "skills": result.get("key_skills", []),
                     "resume_text": text,
                     "experience": result.get("total_experience", 0),
@@ -103,17 +100,14 @@ async def upload_resumes(
                     "location": result.get("location", "")
                 }
 
-                score_result = calculate_final_score(
-                    resume_data,
-                    jd_data
-                )
+                score_result = calculate_final_score(resume_data, jd_data)
+
                 result["ai_explanation"] = score_result.get("explanation", "")
                 result["matched_skills"] = score_result.get("matched_skills", [])
                 result["missing_skills"] = score_result.get("missing_skills", [])
                 result["jd_match_score"] = score_result.get("final_score", 0)
 
             else:
-
                 result["matched_skills"] = []
                 result["missing_skills"] = []
                 result["jd_match_score"] = 0
@@ -121,9 +115,7 @@ async def upload_resumes(
             education_str = json.dumps(result.get("education", []))
 
             entry = ResumeData(
-
                 batch_id=batch_id,
-
                 file_hash=file_hash,
 
                 full_name=result.get("full_name"),
@@ -140,7 +132,6 @@ async def upload_resumes(
                 last_working_date=result.get("last_working_date"),
 
                 education=education_str,
-
                 age=result.get("age"),
 
                 industry_category=result.get("industry_category"),
@@ -152,17 +143,19 @@ async def upload_resumes(
             )
 
             db.add(entry)
-            db.commit()
-
+            all_entries.append(entry)
             parsed += 1
 
         except Exception as e:
             errors += 1
             db.rollback()
-            logging.error(f"Resume processing failed: {file.filename}")
+            logging.error(f"Resume processing failed: {file.filename} | {str(e)}")
             gc.collect()
-#RANKING:
 
+    # ✅ Single commit (optimized)
+    db.commit()
+
+    # 🔥 RANKING
     all_data = db.query(ResumeData).filter(
         ResumeData.batch_id == batch_id
     ).all()
@@ -172,26 +165,26 @@ async def upload_resumes(
         key=lambda x: x.jd_match_score,
         reverse=True
     )
+
     for i, row in enumerate(sorted_data, start=1):
         row.rank = i
+
     db.commit()
 
+    # 📄 CSV Export
     output = io.StringIO()
     writer = csv.writer(output)
 
     headers = ["rank"] + [column.name for column in ResumeData.__table__.columns]
-
     writer.writerow(headers)
 
     for row in sorted_data:
-
         writer.writerow(
             [row.rank] +
             [getattr(row, column.name) for column in ResumeData.__table__.columns]
         )
 
     output.seek(0)
-
     db.close()
 
     return StreamingResponse(

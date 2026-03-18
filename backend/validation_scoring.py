@@ -1,19 +1,24 @@
 import re
 from sklearn.metrics.pairwise import cosine_similarity
 from skill_ecosystem_ai import expand_skills_with_ecosystem
-from skill_graph_engine import expand_skills_graph
-from skill_cluster_engine import cluster_skills
 from skill_intelligence_engine import build_skill_intelligence
-from embedding_model import model
+from embedding_model import get_embedding
 
-# TEXT_CLEANING
+
+# TEXT CLEANING
 def clean_text(text):
     text = str(text).lower()
     text = re.sub(r"[^a-z0-9\s#.+]", " ", text)
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-# PRIMARY SKILL MATC
+
+# 🔥 SAFE EMBEDDING (FIX)
+def get_embeddings_batch(text_list):
+    return [get_embedding(text) for text in text_list]
+
+
+# PRIMARY SKILL MATCH
 def primary_skill_match(resume_skills, jd_skills):
 
     if not jd_skills:
@@ -22,7 +27,8 @@ def primary_skill_match(resume_skills, jd_skills):
     resume_skills = list(set([clean_text(s) for s in resume_skills]))
     jd_skills = list(set([clean_text(s) for s in jd_skills]))
 
-    embeddings = model.encode(resume_skills + jd_skills)
+    all_texts = resume_skills + jd_skills
+    embeddings = get_embeddings_batch(all_texts)
 
     resume_emb = embeddings[:len(resume_skills)]
     jd_emb = embeddings[len(resume_skills):]
@@ -41,11 +47,10 @@ def primary_skill_match(resume_skills, jd_skills):
         else:
             missing.add(jd_skill)
 
-    missing = missing - matched
-
     score = (len(matched) / len(jd_skills)) * 60
 
     return int(score), list(matched), list(missing)
+
 
 # ADDITIONAL SKILL MATCH
 def additional_skill_match(resume_skills, additional_skills):
@@ -56,7 +61,8 @@ def additional_skill_match(resume_skills, additional_skills):
     resume_skills = [clean_text(s) for s in resume_skills]
     additional_skills = [clean_text(s) for s in additional_skills]
 
-    embeddings = model.encode(resume_skills + additional_skills)
+    all_texts = resume_skills + additional_skills
+    embeddings = get_embeddings_batch(all_texts)
 
     resume_emb = embeddings[:len(resume_skills)]
     add_emb = embeddings[len(resume_skills):]
@@ -66,13 +72,13 @@ def additional_skill_match(resume_skills, additional_skills):
     matched_secondary = []
 
     for i in range(len(additional_skills)):
-
         if max(sim_matrix[i]) > 0.65:
             matched_secondary.append(additional_skills[i])
 
     score = (len(matched_secondary) / len(additional_skills)) * 5
 
     return int(score), matched_secondary
+
 
 # EXPERIENCE SCORE
 def experience_score(candidate_exp, jd_min, jd_max):
@@ -104,25 +110,25 @@ def experience_score(candidate_exp, jd_min, jd_max):
                 return 16
 
     elif jd_min:
-
         ratio = candidate_exp / jd_min
         return int(min(25, 25 * ratio))
 
     else:
-
         return 15
 
-# SEMANTIC JD MATCH
+
+# SEMANTIC MATCH
 def semantic_match(resume_text, jd_text):
 
     resume_text = clean_text(resume_text)[:2000]
     jd_text = clean_text(jd_text)[:2000]
 
-    emb = model.encode([resume_text, jd_text])
+    emb = get_embeddings_batch([resume_text, jd_text])
 
     sim = cosine_similarity([emb[0]], [emb[1]])[0][0]
 
     return int(sim * 8)
+
 
 # DESIGNATION MATCH
 def designation_score(candidate_title, jd_title):
@@ -130,11 +136,12 @@ def designation_score(candidate_title, jd_title):
     if not candidate_title or not jd_title:
         return 0
 
-    emb = model.encode([candidate_title, jd_title])
+    emb = get_embeddings_batch([candidate_title, jd_title])
 
     sim = cosine_similarity([emb[0]], [emb[1]])[0][0]
 
     return int(sim * 4)
+
 
 # LOCATION MATCH
 def location_score(candidate_location, jd_location):
@@ -145,6 +152,7 @@ def location_score(candidate_location, jd_location):
     if candidate_location.lower() == jd_location.lower():
         return 3
     return 1
+
 
 # FINAL SCORE
 def calculate_final_score(resume_data, jd_data):
@@ -159,7 +167,7 @@ def calculate_final_score(resume_data, jd_data):
 
     original_resume_skills = list(resume_skills)
 
-    # AI EXPANDED SKILLS
+    # 🔥 AI SKILL EXPANSION
     ai_resume_skills = build_skill_intelligence(
         resume_skills,
         jd_primary_skills
@@ -170,19 +178,7 @@ def calculate_final_score(resume_data, jd_data):
         jd_primary_skills
     )
 
-    ai_resume_skills = expand_skills_graph(
-        ai_resume_skills,
-        jd_primary_skills
-    )
-
-    ai_resume_skills = cluster_skills(
-        ai_resume_skills,
-        jd_primary_skills
-    )
-
     ai_resume_skills = list(set(ai_resume_skills))
-
-    resume_skills = list(set(resume_skills))
 
     resume_text = resume_data.get("resume_text", "")
     resume_exp = resume_data.get("experience", 0)
@@ -196,39 +192,22 @@ def calculate_final_score(resume_data, jd_data):
     jd_location = jd_data.get("location", "")
 
     primary_score, matched_primary, missing_primary = primary_skill_match(
-        original_resume_skills,
+        ai_resume_skills,   # 🔥 FIX: use AI enhanced skills
         jd_primary_skills
     )
 
     additional_score, matched_secondary = additional_skill_match(
-        original_resume_skills,
+        ai_resume_skills,
         jd_additional_skills
     )
 
-    # FINAL MATCHED & MISSING LOGIC
     matched_skills = list(set(matched_primary + matched_secondary))
     missing_skills = missing_primary
 
-    exp_score = experience_score(
-        resume_exp,
-        jd_min,
-        jd_max
-    )
-
-    semantic_score = semantic_match(
-        resume_text,
-        jd_text
-    )
-
-    role_score = designation_score(
-        resume_title,
-        jd_title
-    )
-
-    loc_score = location_score(
-        candidate_location,
-        jd_location
-    )
+    exp_score = experience_score(resume_exp, jd_min, jd_max)
+    semantic_score = semantic_match(resume_text, jd_text)
+    role_score = designation_score(resume_title, jd_title)
+    loc_score = location_score(candidate_location, jd_location)
 
     total_score = (
         primary_score +
@@ -239,8 +218,7 @@ def calculate_final_score(resume_data, jd_data):
         loc_score
     )
 
-    if total_score > 100:
-        total_score = 100
+    total_score = min(total_score, 100)
 
     explanation = f"""
 Matched Skills: {', '.join(matched_skills)}
