@@ -26,7 +26,7 @@ st.markdown("""
 st.title("AI Hiring Platform")
 st.markdown("---")
 
-#MODE SELECTION
+# 2 MODE
 mode = st.radio(
     "Select Mode",
     ["Resume Parsing (Bulk CSV)", "AI Shortlisting Engine"],
@@ -81,6 +81,7 @@ if mode == "Resume Parsing (Bulk CSV)":
 
             else:
                 st.error("Backend error.")
+
 #Ai shortlisting Engine:
 if mode == "AI Shortlisting Engine":
 

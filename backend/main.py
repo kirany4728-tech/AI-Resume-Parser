@@ -58,7 +58,6 @@ async def upload_resumes(
             contents = await file.read()
             file_hash = hashlib.md5(contents).hexdigest()
 
-            # ✅ FIX: Duplicate only within SAME batch
             existing = db.query(ResumeData).filter(
                 ResumeData.file_hash == file_hash,
                 ResumeData.batch_id == batch_id
@@ -88,7 +87,7 @@ async def upload_resumes(
                 errors += 1
                 continue
 
-            # 🔥 AI JD Matching
+            #JD Matching
             if jd_data:
 
                 resume_data = {
@@ -152,10 +151,9 @@ async def upload_resumes(
             logging.error(f"Resume processing failed: {file.filename} | {str(e)}")
             gc.collect()
 
-    # ✅ Single commit (optimized)
     db.commit()
 
-    # 🔥 RANKING
+    #ranking
     all_data = db.query(ResumeData).filter(
         ResumeData.batch_id == batch_id
     ).all()
@@ -171,7 +169,7 @@ async def upload_resumes(
 
     db.commit()
 
-    # 📄 CSV Export
+    #csv export
     output = io.StringIO()
     writer = csv.writer(output)
 

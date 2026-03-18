@@ -11,7 +11,6 @@ embedding_cache = {}
 
 def get_embedding(text):
 
-    # 🔥 HANDLE LIST INPUT
     if isinstance(text, list):
         return [get_embedding(t) for t in text]
 

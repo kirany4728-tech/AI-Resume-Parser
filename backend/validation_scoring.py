@@ -12,13 +12,11 @@ def clean_text(text):
     text = re.sub(r"\s+", " ", text)
     return text.strip()
 
-
-# 🔥 SAFE EMBEDDING (FIX)
 def get_embeddings_batch(text_list):
     return [get_embedding(text) for text in text_list]
 
 
-# PRIMARY SKILL MATCH
+# primary skill matc
 def primary_skill_match(resume_skills, jd_skills):
 
     if not jd_skills:
@@ -52,7 +50,7 @@ def primary_skill_match(resume_skills, jd_skills):
     return int(score), list(matched), list(missing)
 
 
-# ADDITIONAL SKILL MATCH
+#for addi skill match
 def additional_skill_match(resume_skills, additional_skills):
 
     if not additional_skills:
@@ -80,7 +78,7 @@ def additional_skill_match(resume_skills, additional_skills):
     return int(score), matched_secondary
 
 
-# EXPERIENCE SCORE
+# exp. scre
 def experience_score(candidate_exp, jd_min, jd_max):
 
     try:
@@ -116,8 +114,7 @@ def experience_score(candidate_exp, jd_min, jd_max):
     else:
         return 15
 
-
-# SEMANTIC MATCH
+#semntic match
 def semantic_match(resume_text, jd_text):
 
     resume_text = clean_text(resume_text)[:2000]
@@ -130,7 +127,7 @@ def semantic_match(resume_text, jd_text):
     return int(sim * 8)
 
 
-# DESIGNATION MATCH
+# designation
 def designation_score(candidate_title, jd_title):
 
     if not candidate_title or not jd_title:
@@ -154,7 +151,7 @@ def location_score(candidate_location, jd_location):
     return 1
 
 
-# FINAL SCORE
+#final score
 def calculate_final_score(resume_data, jd_data):
 
     resume_skills = resume_data.get("skills", [])
@@ -167,7 +164,7 @@ def calculate_final_score(resume_data, jd_data):
 
     original_resume_skills = list(resume_skills)
 
-    # 🔥 AI SKILL EXPANSION
+    #SKILL EXPANSION
     ai_resume_skills = build_skill_intelligence(
         resume_skills,
         jd_primary_skills
@@ -192,7 +189,7 @@ def calculate_final_score(resume_data, jd_data):
     jd_location = jd_data.get("location", "")
 
     primary_score, matched_primary, missing_primary = primary_skill_match(
-        ai_resume_skills,   # 🔥 FIX: use AI enhanced skills
+        ai_resume_skills,
         jd_primary_skills
     )
 
