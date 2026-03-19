@@ -2,7 +2,7 @@
 __pycache__/
 uploads/
 *.db
-
+.env
 logs.txts
 
 # Upload resumes
