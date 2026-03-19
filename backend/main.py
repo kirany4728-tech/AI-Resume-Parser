@@ -20,6 +20,7 @@ import models
 import gc
 
 models.Base.metadata.create_all(bind=engine)
+port = int(os.getenv("PORT", 8000))  # Render dega PORT, local 8000
 
 app = FastAPI()
 
