@@ -1,6 +1,6 @@
 fastapi
-streamlit
-pandas
+streamlit==1.37.1
+pandas==2.1.4
 plotly
 requests
 python-docx
@@ -15,5 +15,3 @@ scikit-learn
 numpy
 tqdm
 pydantic
-
-
