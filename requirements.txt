@@ -10,8 +10,9 @@ python-dotenv
 python-multipart
 sqlalchemy
 uvicorn
-sentence-transformers
 scikit-learn
 numpy
 tqdm
 pydantic
+
+
