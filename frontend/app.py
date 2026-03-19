@@ -5,7 +5,8 @@ from io import BytesIO
 import os
 from auth import login
 
-API_URL = "https://authoritye.com"    # http://127.0.0.1:8000
+API_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
+   # http://127.0.0.1:8000
 
 if not login():
     st.stop()
