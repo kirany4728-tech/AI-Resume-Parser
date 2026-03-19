@@ -9,4 +9,4 @@ logs.txts
 backendd/uploads/
 *.pyc
 
-.idea/
+.idea/.env
