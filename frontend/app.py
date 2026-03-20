@@ -6,11 +6,6 @@ import os
 from auth import login
 
 
-API_URL = os.getenv("BACKEND_URL")
-
-st.write("DEBUG API:", API_URL)
-   # http://127.0.0.1:8000
-
 if not login():
     st.stop()
 
@@ -19,6 +14,9 @@ st.set_page_config(
     layout="wide",
     page_icon=""
 )
+API_URL = os.getenv("BACKEND_URL")
+
+st.write("DEBUG API:", API_URL)
 st.markdown("""
 <style>
 .stApp {
