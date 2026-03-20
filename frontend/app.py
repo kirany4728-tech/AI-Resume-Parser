@@ -5,7 +5,10 @@ from io import BytesIO
 import os
 from auth import login
 
-API_URL = os.environ.get("BACKEND_URL", "http://127.0.0.1:8000")
+
+API_URL = os.getenv("BACKEND_URL")
+
+st.write("DEBUG API:", API_URL)
    # http://127.0.0.1:8000
 
 if not login():
